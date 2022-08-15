@@ -13,6 +13,12 @@
   #################################
   ## create directories
   #################################
+  - name: create directory bin
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    file:
+      path: "/home/pacs/{{pac}}/users/{{user}}/bin"
+      state: directory
   - name: create directory etc
     become: yes
     become_user: "{{pac}}-{{user}}"
@@ -38,38 +44,68 @@
       path: "/home/pacs/{{pac}}/users/{{user}}/var/run"
       state: directory
 
-  #################################
-  ## install requirements
-  #################################
-  - name: Install node.js
-    import_tasks: tasks/hs_nodejs.yml
-
-  - name: Install ruby
-    import_tasks: tasks/hs_ruby.yml
-
   ##################################
   ## install listmonk
   ##################################
 
-  # TODO
+  - name: install listmonk
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    unarchive:
+      src: https://github.com/knadh/listmonk/releases/download/v{{listmonk_version}}/listmonk_{{listmonk_version}}_linux_amd64.tar.gz
+      remote_src: yes
+      dest: /home/pacs/{{pac}}/users/{{user}}/bin
+      creates: /home/pacs/{{pac}}/users/{{user}}/bin/listmonk
 
   ##################################
   ## configuration
   ##################################
+  - name: upload listmonk configuration
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    template: dest="/home/pacs/{{pac}}/users/{{user}}/bin/config.toml" src="templates/config.toml" mode=0600
+  - name: upload monit configuration
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    template: dest="/home/pacs/{{pac}}/users/{{user}}/.monitrc" src="templates/monitrc" mode=0600
 
-  # TODO
+  - name: upload logrotate configuration
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    template: dest="/home/pacs/{{pac}}/users/{{user}}/.logrotate" src="templates/logrotate" mode=0600
+
+  - name: upload start script for listmonk
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    template: dest="/home/pacs/{{pac}}/users/{{user}}/bin" src="templates/listmonk-start.sh" mode=0700
+  - name: upload stop script for listmonk
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    template: dest="/home/pacs/{{pac}}/users/{{user}}/bin" src="templates/listmonk-stop.sh" mode=0700
 
   ######################
   ## initialise instance
   ######################
-
-  # TODO
+  - name: install listmonk
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    shell: |
+      ./listmonk --install --yes || exit -1
+      touch /home/pacs/{{pac}}/users/{{user}}/.ansible_listmonk_installed || exit -1
+    args:
+      executable: /bin/bash
+      chdir: "/home/pacs/{{pac}}/users/{{user}}/bin"
+      creates: "/home/pacs/{{pac}}/users/{{user}}/.ansible_listmonk_installed"
 
   ########################
   ## setup the apache site
   ########################
-
-  # TODO
+  - name: upload .htaccess file
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    template:
+      src: "templates/htaccess"
+      dest: "/home/pacs/{{pac}}/users/{{user}}/doms/{{domain}}/htdocs-ssl/.htaccess"
 
   ####################################
   ## install cron jobs

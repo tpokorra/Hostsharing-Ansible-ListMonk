@@ -7,3 +7,11 @@ listmonk:
       domain: listmonk.example.org
       user: listmonk
       password: testpassw0rd_changeme
+
+      listmonk_port: 8001
+
+      admin_user: admin
+      admin_password: TOP_secret
+
+      # see 
+      listmonk_version: 2.2.0
