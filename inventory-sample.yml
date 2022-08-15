@@ -12,6 +12,7 @@ listmonk:
 
       admin_user: admin
       admin_password: TOP_secret
+      admin_email: admin@example.org
 
       # see 
       listmonk_version: 2.2.0

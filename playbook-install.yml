@@ -83,6 +83,16 @@
     become_user: "{{pac}}-{{user}}"
     template: dest="/home/pacs/{{pac}}/users/{{user}}/bin" src="templates/listmonk-stop.sh" mode=0700
 
+  - name: upload settings.sql
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    template: dest="/home/pacs/{{pac}}/users/{{user}}/etc/settings.sql" src="templates/settings.sql" mode=0600
+
+  - name: upload pgpass file
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    template: dest="/home/pacs/{{pac}}/users/{{user}}/.pgpass" src="templates/pgpass" mode=0600
+
   ######################
   ## initialise instance
   ######################
@@ -96,6 +106,32 @@
       executable: /bin/bash
       chdir: "/home/pacs/{{pac}}/users/{{user}}/bin"
       creates: "/home/pacs/{{pac}}/users/{{user}}/.ansible_listmonk_installed"
+
+  ############################
+  ## more setup configuration
+  ############################
+  - name: import settings sql
+    become: yes
+    become_user: "{{pac}}-{{user}}"
+    shell: |
+      psql --dbname={{pac}}_{{user}} --user {{pac}}_{{user}} --file="etc/settings.sql" || exit -1
+      touch /home/pacs/{{pac}}/users/{{user}}/.ansible_settings_loaded || exit -1
+    args:
+      executable: /bin/bash
+      chdir: "/home/pacs/{{pac}}/users/{{user}}"
+      creates: "/home/pacs/{{pac}}/users/{{user}}/.ansible_settings_loaded"
+
+  # this won't work for replacing inside json values
+  #- name: modify settings in database
+  #  postgresql_query:
+  #    db: "{{pac}}_{{user}}"
+  #    login_user: "{{pac}}_{{user}}"
+  #    login_password: "{{password}}"
+  #    query: "{{item}}"
+  #  loop:
+  #    - 'UPDATE settings SET value = ''"https://{{domain}}"'' WHERE "key" = ''app.root_url'''
+  #    - 'UPDATE settings SET value = ''"listmonk <noreply@{{domain}}>"'' WHERE "key" = ''app.from_email'''
+  #    - 'UPDATE settings SET value = ''["{{admin_email}}"]'' WHERE "key" = ''app.notify_emails'''
 
   ########################
   ## setup the apache site
