@@ -46,6 +46,10 @@ function hsdatabase(args) {
     print('{"failed":true,"msg":"parameter name required"}');
     return;
   }
+  databaseuser = getParam("user", params);
+  if (databaseuser == null) {
+    databaseuser = databasename;
+  }
   passwd = getParam("password", params);
   if (passwd == null) {
     print('{"failed":true,"msg":"parameter password required"}');
@@ -61,14 +65,14 @@ function hsdatabase(args) {
   if ("false".localeCompare(shouldExist)) {
     if (existingUsers.length < 1) {
       try {
-        dbusermodule.add({set:{name:databasename,password:passwd}});
+        dbusermodule.add({set:{name:databaseuser,password:passwd}});
       }
       catch (e) {
         print('{"failed":true,"msg":"' + String(e) + '"}');
       }
     } else {
       try {
-        dbusermodule.update({where:{name:databasename},set:{password:passwd}});
+        dbusermodule.update({where:{name:databaseuser},set:{password:passwd}});
       }
       catch (e) {
         print('{"failed":true,"msg":"' + String(e) + '"}');
@@ -76,7 +80,7 @@ function hsdatabase(args) {
     }
     if (existingDBs.length < 1) {
       try {
-        dbmodule.add({set:{name:databasename,owner:databasename}});
+        dbmodule.add({set:{name:databasename,owner:databaseuser}});
         print('{"changed":true,"msg":"added"}');
       }
       catch (e) {
@@ -84,7 +88,7 @@ function hsdatabase(args) {
       }
     } else {
       try {
-        dbmodule.update({where:{name:databasename},set:{owner:databasename}});
+        dbmodule.update({where:{name:databasename},set:{owner:databaseuser}});
         print('{"changed":false,"msg":"updated"}');
       }
       catch (e) {
@@ -95,7 +99,7 @@ function hsdatabase(args) {
     if (existingUsers.length > 0) {
       try {
         dbmodule.remove({where:{name:databasename}});
-        dbusermodule.remove({where:{name:databasename}});
+        dbusermodule.remove({where:{name:databaseuser}});
         print('{"changed":true,"msg":"removed"}');
       }
       catch (e) {

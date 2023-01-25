@@ -16,11 +16,11 @@ admin_password = "{{admin_password}}"
 [db]
 host = "localhost"
 port = 5432
-user = "{{pac}}_{{user}}"
-password = "{{password}}"
+user = "{{pac}}_{{db_user}}"
+password = "{{db_password}}"
 
 # Ensure that this database has been created in Postgres.
-database = "{{pac}}_{{user}}"
+database = "{{pac}}_{{db_name}}"
 
 ssl_mode = "disable"
 max_open = 25

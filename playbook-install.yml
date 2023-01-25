@@ -96,7 +96,7 @@
   ######################
   ## initialise instance
   ######################
-  - name: install listmonk
+  - name: initialise listmonk
     become: yes
     become_user: "{{pac}}-{{user}}"
     shell: |
@@ -114,7 +114,7 @@
     become: yes
     become_user: "{{pac}}-{{user}}"
     shell: |
-      psql --dbname={{pac}}_{{user}} --user {{pac}}_{{user}} --file="etc/settings.sql" || exit -1
+      psql --dbname={{pac}}_{{db_name}} --user {{pac}}_{{db_user}} --file="etc/settings.sql" || exit -1
       touch /home/pacs/{{pac}}/users/{{user}}/.ansible_settings_loaded || exit -1
     args:
       executable: /bin/bash

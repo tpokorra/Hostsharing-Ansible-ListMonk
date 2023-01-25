@@ -8,11 +8,15 @@ listmonk:
       user: listmonk
       password: testpassw0rd_changeme
 
+      db_name: listmonk
+      db_user: listmonk
+      db_password: testpassw0rd_changeme2
+
       listmonk_port: 8001
 
       admin_user: admin
       admin_password: TOP_secret
       admin_email: admin@example.org
 
-      # see 
-      listmonk_version: 2.2.0
+      # see https://github.com/knadh/listmonk/releases
+      listmonk_version: 2.3.0
